@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Document from './pages/Document';
 import Chat from './pages/Chat';
+import Landing from './pages/Landing';
 
 function ProtectedRoute({ children }) {
 	const token = localStorage.getItem('auth_token');
@@ -16,7 +17,7 @@ function App() {
 	return (
 		<BrowserRouter>
 			<Routes>
-				<Route path="/" element={<Navigate to="/register" replace />} />
+				<Route path="/" element={<Landing />} />
 				<Route path="/register" element={<Register />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/chat" element={<Chat />} />
