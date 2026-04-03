@@ -55,8 +55,6 @@ const decorativePhotos = [
 ];
 
 function Landing() {
-	const hasToken = Boolean(localStorage.getItem('auth_token'));
-
 	return (
 		<div className="min-h-screen bg-black text-white">
 			<div className="grid min-h-screen w-full grid-rows-[auto_1fr_auto] gap-3 px-3 py-3 lg:px-4 lg:py-4">
@@ -88,7 +86,7 @@ function Landing() {
 							</p>
 
 							<Link
-								to={hasToken ? '/documents' : '/register'}
+								to="/chat"
 								className="rounded-2xl border-2 border-white bg-white px-10 py-5 text-lg font-extrabold uppercase tracking-[0.14em] text-black shadow-[0_16px_40px_rgba(255,255,255,0.2)] transition hover:-translate-y-0.5 hover:bg-zinc-100 sm:px-14 sm:py-6 sm:text-2xl"
 							>
 								Chat With LegalMind
