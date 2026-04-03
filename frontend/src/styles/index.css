@@ -49,6 +49,18 @@
     background: linear-gradient(130deg, rgba(8, 20, 35, 0.94) 0%, rgba(7, 18, 31, 0.86) 100%);
     backdrop-filter: blur(8px);
   }
+
+  .photo-float {
+    animation: photo-float 8s ease-in-out infinite;
+  }
+
+  .photo-float-delay {
+    animation: photo-float 9.5s ease-in-out 0.9s infinite;
+  }
+
+  .photo-float-reverse {
+    animation: photo-float-reverse 8.7s ease-in-out infinite;
+  }
 }
 
 @keyframes rise-fade {
@@ -63,8 +75,36 @@
   }
 }
 
+@keyframes photo-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(-1.2deg);
+  }
+}
+
+@keyframes photo-float-reverse {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(12px) rotate(1.2deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .glass-card {
+    animation: none !important;
+  }
+
+  .photo-float,
+  .photo-float-delay,
+  .photo-float-reverse {
     animation: none !important;
   }
 }
