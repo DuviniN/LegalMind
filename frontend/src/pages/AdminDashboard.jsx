@@ -11,6 +11,7 @@ const SIDEBAR_ITEMS = [
 	{ id: 'upload', label: 'Upload Document' },
 	{ id: 'history', label: 'Upload History' },
 	{ id: 'chatHistory', label: 'User Chat History' },
+	{ id: 'chatPage', label: 'Open Chat Page', route: '/chat' },
 ];
 
 function AdminDashboard() {
@@ -260,7 +261,13 @@ function AdminDashboard() {
 									<button
 										key={item.id}
 										type="button"
-										onClick={() => setActiveSection(item.id)}
+										onClick={() => {
+											if (item.route) {
+												navigate(item.route);
+												return;
+											}
+											setActiveSection(item.id);
+										}}
 										className={`rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition ${
 											isActive
 												? 'border-blue-600 bg-blue-600 text-white shadow-sm'

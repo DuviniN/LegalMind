@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 function Navbar({
 	showSignIn = true,
@@ -10,11 +10,16 @@ function Navbar({
 	bannerImageAlt = 'Legal office desk with documents and gavel',
 }) {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const token = localStorage.getItem('auth_token');
 	const isAuthenticated = Boolean(token);
+	const userRole = (localStorage.getItem('user_role') || '').trim().toLowerCase();
+	const isManager = userRole === 'manager';
+	const isManagerOnChatPage = userRole === 'manager' && location.pathname === '/chat';
+	const showAuthenticatedControls = isAuthenticated || isManagerOnChatPage;
 	const companyName = (localStorage.getItem('company_name') || 'Profile').trim();
 	const profileInitial = (companyName.charAt(0) || 'P').toUpperCase();
-	const homeRoute = isAuthenticated ? '/admin-dashboard' : '/';
+	const homeRoute = isManager ? '/admin-dashboard' : '/';
 
 	const baseActionClass =
 		'inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300';
@@ -52,7 +57,7 @@ function Navbar({
 					</Link>
 
 					<nav className="flex flex-wrap items-center gap-2 sm:gap-3" aria-label="Primary navigation">
-					{isAuthenticated ? (
+					{showAuthenticatedControls ? (
 						<div className="inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-2.5 py-1.5">
 							<span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-blue-200 bg-white text-sm font-bold text-blue-700">
 								{profileInitial}
@@ -63,9 +68,16 @@ function Navbar({
 						</div>
 					) : null}
 
-					
+					{showHome ? (
+						<Link
+							to={homeRoute}
+							className={secondaryActionClass}
+						>
+							Home
+						</Link>
+					) : null}
 
-					{showSignIn && !isAuthenticated ? (
+					{showSignIn && !showAuthenticatedControls ? (
 						<Link
 							to="/login"
 							className={secondaryActionClass}
@@ -74,7 +86,7 @@ function Navbar({
 						</Link>
 					) : null}
 
-					{showSignUp && !isAuthenticated ? (
+					{showSignUp && !showAuthenticatedControls ? (
 						<Link
 							to="/register"
 							className={primaryActionClass}
@@ -83,7 +95,7 @@ function Navbar({
 						</Link>
 					) : null}
 
-					{isAuthenticated ? (
+					{showAuthenticatedControls ? (
 						<button
 							type="button"
 							onClick={handleLogout}
