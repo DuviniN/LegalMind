@@ -1,124 +1,200 @@
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
-const decorativePhotos = [
+const capabilities = [
 	{
-		src: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80',
-		alt: 'Contract papers on office desk',
-		className: 'left-2 top-4 z-[1] w-24 sm:w-28 lg:w-32 photo-float',
+		title: 'Controlled Document Intake',
+		description: 'Collect and store official legal PDFs in a secure and structured workspace.',
 	},
 	{
-		src: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=900&q=80',
-		alt: 'Legal team meeting and review',
-		className: 'left-[14%] top-8 z-[1] w-24 sm:w-28 lg:w-32 photo-float-delay',
+		title: 'Role-Based Access Control',
+		description: 'Ensure managers and employees see only the workflows assigned to their role.',
 	},
 	{
-		src: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=900&q=80',
-		alt: 'Compliance files and office laptop',
-		className: 'left-2 bottom-4 z-[1] w-24 sm:w-28 lg:w-32 photo-float-reverse',
-	},
-	{
-		src: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',
-		alt: 'Office strategy board and notes',
-		className: 'left-[14%] bottom-8 z-[1] w-24 sm:w-28 lg:w-32 photo-float-delay',
-	},
-	{
-		src: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=80',
-		alt: 'Modern legal workspace center view',
-		className: 'left-[7%] top-1/2 z-[2] w-28 -translate-y-1/2 sm:w-36 lg:w-40 photo-float',
-	},
-	{
-		src: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80',
-		alt: 'Attorney consultation at desk',
-		className: 'right-2 top-4 z-[1] w-24 sm:w-28 lg:w-32 photo-float-reverse',
-	},
-	{
-		src: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=900&q=80',
-		alt: 'Law library and records shelves',
-		className: 'right-[14%] top-8 z-[1] w-24 sm:w-28 lg:w-32 photo-float',
-	},
-	{
-		src: 'https://images.unsplash.com/photo-1436450412740-6b988f486c6b?auto=format&fit=crop&w=900&q=80',
-		alt: 'Business handshake for agreement',
-		className: 'right-2 bottom-4 z-[1] w-24 sm:w-28 lg:w-32 photo-float-delay',
-	},
-	{
-		src: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=900&q=80',
-		alt: 'Case file preparation in office',
-		className: 'right-[14%] bottom-8 z-[1] w-24 sm:w-28 lg:w-32 photo-float',
-	},
-	{
-		src: 'https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=900&q=80',
-		alt: 'Courtroom gavel and legal decision scene',
-		className: 'right-[7%] top-1/2 z-[2] w-28 -translate-y-1/2 sm:w-36 lg:w-40 photo-float-reverse',
+		title: 'Operational Legal Assistant',
+		description: 'Use AI chat to clarify clauses, obligations, and process-related legal questions.',
 	},
 ];
 
+const governanceChecks = [
+	'Role-based permissions for managers and employees',
+	'Centralized upload history for accountability and review',
+	'Consistent handling of official legal document records',
+	'Single workspace for operations and legal collaboration',
+];
+
+const workflowSteps = [
+	{
+		step: '01',
+		title: 'Authenticate',
+		detail: 'Sign in to your organization workspace with role-based access.',
+	},
+	{
+		step: '02',
+		title: 'Upload and Record',
+		detail: 'Submit legal PDFs and keep an auditable history of uploaded files.',
+	},
+	{
+		step: '03',
+		title: 'Review and Support',
+		detail: 'Use LegalMind chat for rapid policy and document guidance.',
+	},
+];
+
+const landingBackgroundImage = 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1920&q=80';
+const landingBannerImage = 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1920&q=80';
+
 function Landing() {
 	return (
-		<div className="min-h-screen bg-black text-white">
-			<div className="grid min-h-screen w-full grid-rows-[auto_1fr_auto] gap-3 px-3 py-3 lg:px-4 lg:py-4">
+		<div
+			className="min-h-screen bg-cover bg-center bg-no-repeat text-slate-800"
+			style={{
+				backgroundImage: `linear-gradient(180deg, rgba(248,251,255,0.92) 0%, rgba(238,245,255,0.9) 56%, rgba(246,251,255,0.93) 100%), url('${landingBackgroundImage}')`,
+			}}
+		>
+			<div className="grid min-h-screen w-full grid-rows-[auto_auto_1fr_auto] gap-0 px-4 py-4 lg:px-6 lg:py-6">
 				<Navbar />
 
-				<main className="relative grid h-full gap-3">
-					<section className="relative grid h-full min-h-[34rem] place-items-center overflow-hidden rounded-2xl border border-white/20 bg-black">
-						<div className="pointer-events-none absolute inset-0 opacity-85">
-							<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.14),transparent_52%)]" />
-							{decorativePhotos.map((photo, index) => (
-								<img
-									key={`${photo.src}-${index}`}
-									src={photo.src}
-									alt={photo.alt}
-									className={`absolute rounded-2xl border border-white/35 object-cover grayscale brightness-125 contrast-150 shadow-[0_14px_30px_rgba(255,255,255,0.2)] ${photo.className}`}
-								/>
-							))}
+				<section className="border-x border-b border-blue-100 bg-white/92 px-4 pb-0 backdrop-blur-sm sm:px-6 lg:px-8">
+					<img
+						src={landingBannerImage}
+						alt="Legal professionals reviewing official documents in office"
+						className="h-36 w-full rounded-b-2xl border border-blue-100 object-cover shadow-[0_8px_22px_rgba(37,99,235,0.14)] sm:h-44 lg:h-52"
+					/>
+				</section>
+
+				<main className="grid h-full w-full gap-4">
+					<section className="min-h-[64vh] rounded-2xl border border-blue-100 bg-white/92 p-7 shadow-[0_12px_32px_rgba(37,99,235,0.08)] backdrop-blur-sm sm:p-10">
+						<div className="grid h-full gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
+							<div>
+								<p className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm font-semibold uppercase tracking-[0.12em] text-blue-700">
+									Enterprise Legal Operations Platform
+								</p>
+								<h2 className="mt-4 font-display text-4xl font-bold leading-tight text-slate-900 sm:text-5xl lg:text-[3.2rem]">
+									Official legal document management for
+									<span className="text-blue-700"> structured teams</span>
+								</h2>
+								<p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-600 sm:text-lg">
+									LegalMind provides a single professional workspace for secure PDF uploads, governed access, and fast legal support for daily operations.
+								</p>
+
+								<div className="mt-6 flex flex-wrap gap-3">
+									<Link
+										to="/login"
+										className="rounded-xl border border-blue-600 bg-blue-600 px-7 py-3 text-base font-bold uppercase tracking-[0.12em] text-white transition hover:bg-blue-700"
+									>
+										Access Workspace
+									</Link>
+									<Link
+										to="/chat"
+										className="rounded-xl border border-blue-300 bg-white px-7 py-3 text-base font-semibold uppercase tracking-[0.12em] text-blue-700 transition hover:bg-blue-50"
+									>
+										Open Legal Chat
+									</Link>
+								</div>
+
+								<div className="mt-6 grid gap-2 text-sm uppercase tracking-[0.12em] text-slate-600 sm:grid-cols-3">
+									<p className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-2.5 text-center">Secure Upload Control</p>
+									<p className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-2.5 text-center">Auditable File History</p>
+									<p className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-2.5 text-center">Role-Aligned Workflows</p>
+								</div>
+							</div>
+
+							<aside className="rounded-2xl border border-blue-100 bg-blue-50/70 p-6">
+								<p className="text-sm font-semibold uppercase tracking-[0.14em] text-blue-700">Operational Snapshot</p>
+								<div className="mt-4 grid gap-3">
+									<div className="rounded-xl border border-blue-100 bg-white px-4 py-3.5">
+										<p className="text-sm uppercase tracking-[0.12em] text-slate-500">Workspace Model</p>
+										<p className="mt-1 text-base font-semibold text-slate-900">Manager + Employee Access Layers</p>
+									</div>
+									<div className="rounded-xl border border-blue-100 bg-white px-4 py-3.5">
+										<p className="text-sm uppercase tracking-[0.12em] text-slate-500">Primary Records</p>
+										<p className="mt-1 text-base font-semibold text-slate-900">Official PDFs with Upload History</p>
+									</div>
+									<div className="rounded-xl border border-blue-100 bg-white px-4 py-3.5">
+										<p className="text-sm uppercase tracking-[0.12em] text-slate-500">Support Channel</p>
+										<p className="mt-1 text-base font-semibold text-slate-900">Integrated LegalMind AI Assistant</p>
+									</div>
+								</div>
+							</aside>
+						</div>
+					</section>
+
+					<section className="grid gap-4 md:grid-cols-3">
+						{capabilities.map((feature) => (
+							<article key={feature.title} className="rounded-2xl border border-blue-100 bg-white/92 p-6 shadow-[0_8px_20px_rgba(37,99,235,0.06)] backdrop-blur-sm">
+								<h3 className="font-display text-xl font-semibold text-slate-900">{feature.title}</h3>
+								<p className="mt-2 text-base leading-relaxed text-slate-600">{feature.description}</p>
+							</article>
+						))}
+					</section>
+
+					<section className="grid gap-4 lg:grid-cols-2">
+						<div className="rounded-2xl border border-blue-100 bg-white/92 p-7 shadow-[0_10px_24px_rgba(37,99,235,0.08)] backdrop-blur-sm">
+							<h3 className="font-display text-3xl font-bold text-slate-900">Governance and Control</h3>
+							<p className="mt-3 text-base leading-relaxed text-slate-600">
+								Designed for organizations that require consistency, visibility, and accountable legal document handling.
+							</p>
+							<div className="mt-4 grid gap-2">
+								{governanceChecks.map((item) => (
+									<p key={item} className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-2.5 text-base text-slate-700">
+										{item}
+									</p>
+								))}
+							</div>
 						</div>
 
-						<div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center gap-5 px-4 py-10 text-center">
-							<p className="rounded-full border border-white/40 px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-200">
-								Secure Legal Workspace
+						<div className="rounded-2xl border border-blue-100 bg-white/92 p-7 shadow-[0_10px_24px_rgba(37,99,235,0.08)] backdrop-blur-sm">
+							<h3 className="font-display text-3xl font-bold text-slate-900">Standard Workflow</h3>
+							<p className="mt-3 text-base leading-relaxed text-slate-600">
+								A simple process that keeps legal operations clear for both management and staff.
 							</p>
-							<h2 className="font-display text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
-								Upload. Organize. Chat.
-							</h2>
-							<p className="max-w-2xl text-sm text-zinc-300 sm:text-base">
-								Built for managers and authorized employees to handle legal files in one clear and trusted place.
-							</p>
+							<div className="mt-4 grid gap-3">
+								{workflowSteps.map((item) => (
+									<div key={item.step} className="rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+										<p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-700">Step {item.step}</p>
+										<p className="mt-1 text-base font-semibold text-slate-900">{item.title}</p>
+										<p className="mt-1 text-base text-slate-600">{item.detail}</p>
+									</div>
+								))}
+							</div>
+						</div>
+					</section>
 
+					<section className="rounded-2xl border border-blue-100 bg-white/92 p-7 text-center shadow-[0_10px_24px_rgba(37,99,235,0.08)] backdrop-blur-sm sm:p-10">
+						<p className="text-sm font-semibold uppercase tracking-[0.14em] text-blue-700">Ready to Operate</p>
+						<h3 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">Start with a professional legal workspace</h3>
+						<p className="mx-auto mt-3 max-w-3xl text-base leading-relaxed text-slate-600 sm:text-lg">
+							Centralize legal document workflows, maintain clear ownership, and support teams with reliable legal assistance.
+						</p>
+						<div className="mt-6 flex flex-wrap items-center justify-center gap-3">
 							<Link
-								to="/chat"
-								className="rounded-2xl border-2 border-white bg-white px-10 py-5 text-lg font-extrabold uppercase tracking-[0.14em] text-black shadow-[0_16px_40px_rgba(255,255,255,0.2)] transition hover:-translate-y-0.5 hover:bg-zinc-100 sm:px-14 sm:py-6 sm:text-2xl"
+								to="/register"
+								className="rounded-xl border border-blue-600 bg-blue-600 px-7 py-3 text-base font-bold uppercase tracking-[0.12em] text-white transition hover:bg-blue-700"
 							>
-								Chat With LegalMind
+								Create Organization Account
 							</Link>
-
-							<p className="text-xs uppercase tracking-[0.12em] text-zinc-400">
-								Fast access. Strong privacy. Team-ready workflows.
-							</p>
+							<Link
+								to="/login"
+								className="rounded-xl border border-blue-300 bg-white px-7 py-3 text-base font-semibold uppercase tracking-[0.12em] text-blue-700 transition hover:bg-blue-50"
+							>
+								Sign In
+							</Link>
 						</div>
 					</section>
 				</main>
 
-				<footer className="rounded-2xl border border-white/20 bg-black px-4 py-4 sm:px-6">
-					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-						<div>
-							<p className="font-display text-sm font-semibold tracking-[0.1em] text-white">Legak Mind</p>
-							<p className="mt-1 text-xs text-zinc-300">Modern legal workspace for secure document collaboration.</p>
-						</div>
-						<div className="flex items-center gap-4 text-xs text-zinc-400">
-							<Link to="/login" className="transition hover:text-white">
-								Portal
-							</Link>
-							<Link to="/register" className="transition hover:text-white">
-								Join
-							</Link>
-						</div>
-					</div>
-
-					<div className="mt-3 border-t border-white/10 pt-2 text-center text-[11px] text-zinc-500 sm:text-right">
-						© {new Date().getFullYear()} Legak Mind. All rights reserved.
-					</div>
-				</footer>
+				<div className="mt-4">
+					<Footer
+						summary="LegalMind enables secure legal document operations with clear governance, controlled access, and practical AI support for teams."
+						links={[
+							{ to: '/login', label: 'Sign In' },
+							{ to: '/register', label: 'Register' },
+							{ to: '/chat', label: 'Legal Chat' },
+						]}
+					/>
+				</div>
 			</div>
 		</div>
 	);

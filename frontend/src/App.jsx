@@ -1,9 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Document from './pages/Document';
 import Chat from './pages/Chat';
 import Landing from './pages/Landing';
+import AdminDashboard from './pages/AdminDashboard';
 
 function ProtectedRoute({ children }) {
 	const token = localStorage.getItem('auth_token');
@@ -22,10 +22,18 @@ function App() {
 				<Route path="/login" element={<Login />} />
 				<Route path="/chat" element={<Chat />} />
 				<Route
+					path="/admin-dashboard"
+					element={
+						<ProtectedRoute>
+							<AdminDashboard />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
 					path="/documents"
 					element={
 						<ProtectedRoute>
-							<Document />
+							<AdminDashboard />
 						</ProtectedRoute>
 					}
 				/>

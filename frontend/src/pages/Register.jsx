@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerCompany } from '../api/client';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 function Register() {
   const navigate = useNavigate();
@@ -33,35 +34,27 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#eff6ff_58%,#f6fbff_100%)] text-slate-800">
       <div className="grid min-h-screen w-full grid-rows-[auto_1fr_auto] gap-3 px-3 py-3 lg:px-4 lg:py-4">
         <Navbar />
 
         <main className="relative grid h-full gap-3">
-          <section className="relative grid min-h-[34rem] place-items-center overflow-hidden rounded-2xl border border-white/20 bg-black">
-            <img
-              src="https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1800&q=80"
-              alt="Professional legal institution background"
-              className="pointer-events-none absolute inset-0 h-full w-full object-cover grayscale brightness-[0.28]"
-            />
-            <div className="pointer-events-none absolute inset-0 opacity-85">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.14),transparent_52%)]" />
-            </div>
+          <section className="grid min-h-[34rem] place-items-center rounded-2xl border border-blue-100 bg-white/85 p-6 shadow-[0_10px_24px_rgba(37,99,235,0.08)]">
 
             <form
-              className="relative z-10 w-full max-w-md space-y-4 rounded-2xl border border-white/25 bg-black/90 p-6 backdrop-blur"
+              className="w-full max-w-md space-y-4 rounded-2xl border border-blue-100 bg-white p-6 shadow-sm"
               onSubmit={onSubmit}
             >
-              <p className="inline-flex w-fit rounded-full border border-white/35 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-200">
+              <p className="inline-flex w-fit rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-700">
                 Legak Mind
               </p>
-              <h2 className="font-display text-2xl font-bold text-white">Create Company Account</h2>
-              <p className="text-sm text-zinc-300">Register your organization to upload and manage legal documents.</p>
+              <h2 className="font-display text-2xl font-bold text-slate-900">Create Company Account</h2>
+              <p className="text-sm text-slate-600">Register your organization to upload and manage legal documents.</p>
 
-              <label className="flex flex-col gap-2 text-sm font-medium text-zinc-200">
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
                 Company Name
                 <input
-                  className="rounded-xl border border-white/30 bg-black px-3 py-2.5 text-sm text-white outline-none transition focus:border-white focus:ring-2 focus:ring-white/25"
+                  className="rounded-xl border border-blue-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
                   type="text"
                   placeholder="Acme Legal Pvt Ltd"
                   value={companyName}
@@ -70,10 +63,10 @@ function Register() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2 text-sm font-medium text-zinc-200">
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
                 Work Email
                 <input
-                  className="rounded-xl border border-white/30 bg-black px-3 py-2.5 text-sm text-white outline-none transition focus:border-white focus:ring-2 focus:ring-white/25"
+                  className="rounded-xl border border-blue-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
                   type="email"
                   placeholder="owner@company.com"
                   value={email}
@@ -82,10 +75,10 @@ function Register() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2 text-sm font-medium text-zinc-200">
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
                 Password
                 <input
-                  className="rounded-xl border border-white/30 bg-black px-3 py-2.5 text-sm text-white outline-none transition focus:border-white focus:ring-2 focus:ring-white/25"
+                  className="rounded-xl border border-blue-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
                   type="password"
                   placeholder="Enter secure password"
                   value={password}
@@ -94,10 +87,10 @@ function Register() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2 text-sm font-medium text-zinc-200">
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
                 Company Secret Key
                 <input
-                  className="rounded-xl border border-white/30 bg-black px-3 py-2.5 text-sm text-white outline-none transition focus:border-white focus:ring-2 focus:ring-white/25"
+                  className="rounded-xl border border-blue-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
                   type="password"
                   placeholder="Enter provided secret key"
                   value={secretKey}
@@ -106,19 +99,19 @@ function Register() {
                 />
               </label>
 
-              {error ? <p className="rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-sm text-zinc-100">{error}</p> : null}
+              {error ? <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
 
               <button
-                className="w-full rounded-xl border-2 border-white bg-white px-4 py-2.5 text-sm font-extrabold uppercase tracking-[0.12em] text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-70"
+                className="w-full rounded-xl border border-blue-600 bg-blue-600 px-4 py-2.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
                 type="submit"
                 disabled={loading}
               >
                 {loading ? 'Creating account...' : 'Create Account'}
               </button>
 
-              <p className="text-sm text-zinc-300">
+              <p className="text-sm text-slate-600">
                 Already registered?{' '}
-                <Link to="/login" className="font-semibold text-white underline-offset-2 hover:underline">
+                <Link to="/login" className="font-semibold text-blue-700 underline-offset-2 hover:underline">
                   Sign in
                 </Link>
               </p>
@@ -126,26 +119,13 @@ function Register() {
           </section>
         </main>
 
-        <footer className="rounded-2xl border border-white/20 bg-black px-4 py-4 sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-display text-sm font-semibold tracking-[0.1em] text-white">Legak Mind</p>
-              <p className="mt-1 text-xs text-zinc-300">Modern legal workspace for secure document collaboration.</p>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-zinc-400">
-              <Link to="/login" className="transition hover:text-white">
-                Portal
-              </Link>
-              <Link to="/register" className="transition hover:text-white">
-                Join
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-3 border-t border-white/10 pt-2 text-center text-[11px] text-zinc-500 sm:text-right">
-            © {new Date().getFullYear()} Legak Mind. All rights reserved.
-          </div>
-        </footer>
+        <Footer
+          summary="Modern legal workspace for secure document collaboration."
+          links={[
+            { to: '/login', label: 'Portal' },
+            { to: '/register', label: 'Join' },
+          ]}
+        />
       </div>
     </div>
   );
