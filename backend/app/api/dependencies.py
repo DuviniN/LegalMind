@@ -1,15 +1,22 @@
-from typing import Optional
-
-from fastapi import Header, HTTPException
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.db.mongodb import db
 
 
-async def get_current_company(authorization: Optional[str] = Header(default=None)) -> dict:
-    if not authorization or not authorization.startswith("Bearer "):
+bearer_scheme = HTTPBearer(auto_error=False)
+
+
+async def get_current_company(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+) -> dict:
+    if not credentials or credentials.scheme.lower() != "bearer":
         raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
 
-    token = authorization.split(" ", 1)[1].strip()
+    token = credentials.credentials.strip()
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
+
     session = await db.database["sessions"].find_one({"token": token})
     if not session:
         raise HTTPException(status_code=401, detail="Invalid session token")

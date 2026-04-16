@@ -1,9 +1,11 @@
 from datetime import datetime, timezone
 from pathlib import Path
 
+from fastapi.concurrency import run_in_threadpool
 from fastapi import HTTPException, UploadFile
 
 from app.db.mongodb import db
+from app.services.rag_service import ingest_pdf_to_vector_store
 
 UPLOAD_DIR = Path(__file__).resolve().parents[2] / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -30,13 +32,46 @@ async def upload_pdf(file: UploadFile, company: dict) -> dict:
             "stored_name": safe_name,
             "path": str(save_path),
             "uploaded_at": timestamp,
+            "indexing_status": "processing",
         }
     )
 
+    document_id = str(result.inserted_id)
+    try:
+        chunks_indexed = await run_in_threadpool(
+            ingest_pdf_to_vector_store,
+            save_path,
+            str(company["_id"]),
+            document_id,
+            file.filename,
+        )
+        await db.database["documents"].update_one(
+            {"_id": result.inserted_id},
+            {
+                "$set": {
+                    "indexing_status": "indexed",
+                    "chunks_indexed": chunks_indexed,
+                    "indexed_at": datetime.now(timezone.utc),
+                }
+            },
+        )
+    except Exception as exc:
+        await db.database["documents"].update_one(
+            {"_id": result.inserted_id},
+            {
+                "$set": {
+                    "indexing_status": "failed",
+                    "indexing_error": str(exc),
+                }
+            },
+        )
+        raise HTTPException(status_code=500, detail=f"PDF uploaded but indexing failed: {exc}") from exc
+
     return {
         "message": "File uploaded successfully",
-        "document_id": str(result.inserted_id),
+        "document_id": document_id,
         "file_name": file.filename,
+        "chunks_indexed": chunks_indexed,
         "uploaded_at": timestamp.isoformat(),
     }
 
@@ -53,6 +88,8 @@ async def list_company_documents(company: dict) -> dict:
                 "file_name": item.get("file_name", ""),
                 "path": item.get("path", ""),
                 "uploaded_at": uploaded_at.isoformat() if uploaded_at else None,
+                "indexing_status": item.get("indexing_status"),
+                "chunks_indexed": item.get("chunks_indexed"),
             }
         )
 

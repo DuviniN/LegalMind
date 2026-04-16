@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { askRagQuestion, getDocuments } from '../api/client';
 
 const starterPrompts = [
 	'Summarize the key obligations in this contract.',
@@ -9,30 +10,64 @@ const starterPrompts = [
 	'Explain this clause in simple business language.',
 ];
 
-function createUiAssistantReply(prompt) {
-	return `Great question. Here is a practical legal review path for: "${prompt}".\n\n1) Start with scope and obligations. Confirm who must do what, and by when.\n2) Review risk clauses. Focus on liability limits, termination rights, and payment conditions.\n3) Validate compliance impact. Check whether this creates regulatory, operational, or reporting duties.\n\nIf you want, I can next break this into a manager action checklist.`;
-}
-
 function Chat() {
 	const [question, setQuestion] = useState('');
 	const [loading, setLoading] = useState(false);
+	const [status, setStatus] = useState('');
+	const [documents, setDocuments] = useState([]);
+	const [selectedDocumentId, setSelectedDocumentId] = useState('');
 	const [messages, setMessages] = useState([
 		{
 			role: 'assistant',
-			text: 'Welcome to LegalMind AI. Ask a legal operations question, and I will respond in a conversational style.',
+			text: 'Welcome to LegalMind AI. Ask a question about your uploaded PDFs and I will answer from indexed document context.',
 		},
 	]);
 	const [threads, setThreads] = useState([{ id: 'current', title: 'Current Conversation', updatedAt: 'Just now' }]);
+	const token = localStorage.getItem('auth_token');
 
-	const submitQuestion = (rawQuestion) => {
+	useEffect(() => {
+		const loadDocuments = async () => {
+			if (!token) {
+				setStatus('Please login first to use RAG chat.');
+				return;
+			}
+			try {
+				const data = await getDocuments(token);
+				const list = Array.isArray(data?.documents) ? data.documents : [];
+				setDocuments(list);
+
+				const indexedDocs = list.filter((item) => item.indexing_status === 'indexed');
+				if (indexedDocs.length > 0) {
+					setSelectedDocumentId(indexedDocs[0].id);
+				}
+			} catch (error) {
+				setStatus(error?.response?.data?.detail || 'Failed to load documents for chat context.');
+			}
+		};
+
+		loadDocuments();
+	}, [token]);
+
+	const indexedDocumentOptions = useMemo(
+		() => documents.filter((item) => item.indexing_status === 'indexed'),
+		[documents]
+	);
+
+	const submitQuestion = async (rawQuestion) => {
 		const cleanQuestion = rawQuestion.trim();
 		if (!cleanQuestion) {
+			return;
+		}
+
+		if (!token) {
+			setStatus('Please login first to ask questions.');
 			return;
 		}
 
 		setMessages((prev) => [...prev, { role: 'user', text: cleanQuestion }]);
 		setQuestion('');
 		setLoading(true);
+		setStatus('');
 
 		setThreads((prev) => {
 			const updated = [...prev];
@@ -44,8 +79,22 @@ function Chat() {
 			return updated;
 		});
 
-		setTimeout(() => {
-			const assistantAnswer = createUiAssistantReply(cleanQuestion);
+		try {
+			const ragResponse = await askRagQuestion(
+				{
+					question: cleanQuestion,
+					top_k: 4,
+					document_id: selectedDocumentId || null,
+				},
+				token
+			);
+
+			const sourceLine = Array.isArray(ragResponse?.sources) && ragResponse.sources.length
+				? `\n\nSources: ${ragResponse.sources.join(', ')}`
+				: '';
+			const confidenceLine = ragResponse?.confidence ? `\nConfidence: ${ragResponse.confidence}` : '';
+			const assistantAnswer = `${ragResponse?.answer || 'No answer generated.'}${sourceLine}${confidenceLine}`;
+
 			setMessages((prev) => [...prev, { role: 'assistant', text: assistantAnswer }]);
 			try {
 				const existing = JSON.parse(localStorage.getItem('legalmind_chat_history') || '[]');
@@ -55,8 +104,17 @@ function Chat() {
 			} catch {
 				// Ignore parse failures and keep chat UI responsive.
 			}
+		} catch (error) {
+			const detail =
+				error?.response?.data?.detail ||
+				error?.response?.data ||
+				error?.message ||
+				'RAG request failed. Check backend and token.';
+			setStatus(detail);
+			setMessages((prev) => [...prev, { role: 'assistant', text: `I could not process this question. ${detail}` }]);
+		} finally {
 			setLoading(false);
-		}, 650);
+		}
 	};
 
 	const handleSubmit = (event) => {
@@ -106,6 +164,24 @@ function Chat() {
 								</p>
 								<h2 className="mt-2 font-display text-2xl font-bold text-slate-900 sm:text-3xl">LegalMind Conversation</h2>
 								<p className="mt-1 text-sm text-slate-600">Natural chat-style responses for legal operations and document understanding.</p>
+								{indexedDocumentOptions.length > 0 ? (
+									<div className="mt-3 max-w-xl">
+										<label className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Answer Context</label>
+										<select
+											className="w-full rounded-xl border border-blue-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+											value={selectedDocumentId}
+											onChange={(event) => setSelectedDocumentId(event.target.value)}
+										>
+											<option value="">All indexed documents</option>
+											{indexedDocumentOptions.map((doc) => (
+												<option key={doc.id} value={doc.id}>{doc.file_name}</option>
+											))}
+										</select>
+									</div>
+								) : (
+									<p className="mt-3 text-sm text-amber-700">No indexed PDF found. Upload a PDF first, then ask questions.</p>
+								)}
+								{status ? <p className="mt-2 text-sm text-red-700">{status}</p> : null}
 							</header>
 
 							<div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">

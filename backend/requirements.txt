@@ -4,3 +4,13 @@ python-dotenv
 motor
 python-multipart
 email-validator
+langchain
+langchain-text-splitters
+langgraph
+langchain-groq
+langchain-chroma
+langchain-huggingface
+pypdf
+chromadb
+sentence-transformers
+langsmith

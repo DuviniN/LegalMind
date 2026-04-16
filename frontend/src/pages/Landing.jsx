@@ -46,6 +46,9 @@ const landingBackgroundImage = 'https://images.unsplash.com/photo-1450101499163-
 const landingBannerImage = 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1920&q=80';
 
 function Landing() {
+	const token = localStorage.getItem('auth_token');
+	const chatRoute = token ? '/chat' : '/login';
+
 	return (
 		<div
 			className="min-h-screen bg-cover bg-center bg-no-repeat text-slate-800"
@@ -87,7 +90,7 @@ function Landing() {
 										Access Workspace
 									</Link>
 									<Link
-										to="/chat"
+										to={chatRoute}
 										className="rounded-xl border border-blue-300 bg-white px-7 py-3 text-base font-semibold uppercase tracking-[0.12em] text-blue-700 transition hover:bg-blue-50"
 									>
 										Open Legal Chat
@@ -191,7 +194,7 @@ function Landing() {
 						links={[
 							{ to: '/login', label: 'Sign In' },
 							{ to: '/register', label: 'Register' },
-							{ to: '/chat', label: 'Legal Chat' },
+							{ to: chatRoute, label: 'Legal Chat' },
 						]}
 					/>
 				</div>

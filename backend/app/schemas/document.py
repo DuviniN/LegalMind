@@ -6,6 +6,8 @@ class DocumentItem(BaseModel):
     file_name: str
     path: str
     uploaded_at: str | None = None
+    indexing_status: str | None = None
+    chunks_indexed: int | None = None
 
 
 class DocumentListResponse(BaseModel):
