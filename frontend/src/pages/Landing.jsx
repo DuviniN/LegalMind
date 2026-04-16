@@ -46,8 +46,7 @@ const landingBackgroundImage = 'https://images.unsplash.com/photo-1450101499163-
 const landingBannerImage = 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1920&q=80';
 
 function Landing() {
-	const token = localStorage.getItem('auth_token');
-	const chatRoute = token ? '/chat' : '/login';
+	const chatRoute = '/chat';
 
 	return (
 		<div

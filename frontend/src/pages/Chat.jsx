@@ -27,10 +27,6 @@ function Chat() {
 
 	useEffect(() => {
 		const loadDocuments = async () => {
-			if (!token) {
-				setStatus('Please login first to use RAG chat.');
-				return;
-			}
 			try {
 				const data = await getDocuments(token);
 				const list = Array.isArray(data?.documents) ? data.documents : [];
@@ -56,11 +52,6 @@ function Chat() {
 	const submitQuestion = async (rawQuestion) => {
 		const cleanQuestion = rawQuestion.trim();
 		if (!cleanQuestion) {
-			return;
-		}
-
-		if (!token) {
-			setStatus('Please login first to ask questions.');
 			return;
 		}
 

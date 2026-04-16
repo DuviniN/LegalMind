@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, File, UploadFile
 
-from app.api.dependencies import get_current_company
+from app.api.dependencies import get_chat_company, get_current_company
 from app.schemas.document import DocumentListResponse
 from app.services.document_service import list_company_documents, upload_pdf
 
@@ -13,5 +13,5 @@ async def upload(file: UploadFile = File(...), company: dict = Depends(get_curre
 
 
 @router.get("/documents", response_model=DocumentListResponse)
-async def list_documents(company: dict = Depends(get_current_company)):
+async def list_documents(company: dict = Depends(get_chat_company)):
     return await list_company_documents(company=company)

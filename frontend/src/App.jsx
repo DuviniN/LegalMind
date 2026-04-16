@@ -20,14 +20,7 @@ function App() {
 				<Route path="/" element={<Landing />} />
 				<Route path="/register" element={<Register />} />
 				<Route path="/login" element={<Login />} />
-				<Route
-					path="/chat"
-					element={
-						<ProtectedRoute>
-							<Chat />
-						</ProtectedRoute>
-					}
-				/>
+				<Route path="/chat" element={<Chat />} />
 				<Route
 					path="/admin-dashboard"
 					element={

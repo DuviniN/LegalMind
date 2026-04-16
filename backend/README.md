@@ -56,12 +56,21 @@ RAG_CHUNK_SIZE=1000
 RAG_CHUNK_OVERLAP=150
 RAG_TOP_K=4
 
+# Internal company mode (optional)
+# true: allow chat and document list access without login
+INTERNAL_CHAT_NO_AUTH=false
+# Optional fixed company id for internal mode
+# INTERNAL_DEFAULT_COMPANY_ID=64f0c2f4e1382db14e9f1234
+
 # LangSmith (optional, for tracing/observability)
 LANGSMITH_TRACING=true
 LANGSMITH_API_KEY=your_langsmith_api_key
 LANGSMITH_PROJECT=LegalMind
 # LANGSMITH_ENDPOINT=https://api.smith.langchain.com
 ```
+
+When `INTERNAL_CHAT_NO_AUTH=true`, users can open `/chat` and use RAG without login.
+Backend will use `INTERNAL_DEFAULT_COMPANY_ID` if provided, otherwise it uses the first company record in MongoDB.
 
 ## LangSmith Setup (RAG Tracing)
 
