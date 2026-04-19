@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getDocuments, uploadDocument } from '../api/client';
+import { getDocuments, getLeaveRequests, uploadDocument } from '../api/client';
 import DocumentTable from '../components/DocumentTable';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -11,6 +11,7 @@ const SIDEBAR_ITEMS = [
 	{ id: 'upload', label: 'Upload Document' },
 	{ id: 'history', label: 'Upload History' },
 	{ id: 'chatHistory', label: 'User Chat History' },
+	{ id: 'leaveRequests', label: 'Leave Requests' },
 	{ id: 'chatPage', label: 'Open Chat Page', route: '/chat' },
 ];
 
@@ -19,6 +20,7 @@ function AdminDashboard() {
 	const [activeSection, setActiveSection] = useState('home');
 	const [file, setFile] = useState(null);
 	const [documents, setDocuments] = useState([]);
+	const [leaveRequests, setLeaveRequests] = useState([]);
 	const [status, setStatus] = useState('');
 	const [loading, setLoading] = useState(false);
 
@@ -37,6 +39,28 @@ function AdminDashboard() {
 			return [];
 		}
 	}, []);
+
+	const leaveRequestStats = useMemo(() => {
+		return {
+			total: leaveRequests.length,
+			submitted: leaveRequests.filter((item) => item.status === 'submitted').length,
+		};
+	}, [leaveRequests]);
+
+	const formatLeaveType = (value) => {
+		if (!value) return '-';
+		return value.replaceAll('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+	};
+
+	const formatDuration = (request) => {
+		if (request.single_date) {
+			return request.single_date;
+		}
+		if (request.start_date && request.end_date) {
+			return `${request.start_date} to ${request.end_date}`;
+		}
+		return request.leave_date || '-';
+	};
 
 	const latestUpload = useMemo(() => {
 		if (!documents.length) {
@@ -67,8 +91,21 @@ function AdminDashboard() {
 		}
 	};
 
+	const loadLeaveRequests = async () => {
+		if (!token) {
+			return;
+		}
+		try {
+			const data = await getLeaveRequests(token);
+			setLeaveRequests(Array.isArray(data?.requests) ? data.requests : []);
+		} catch (error) {
+			setStatus(error?.response?.data?.detail || 'Failed to load leave requests');
+		}
+	};
+
 	useEffect(() => {
 		loadDocuments();
+		loadLeaveRequests();
 	}, []);
 
 	const handleUpload = async (event) => {
@@ -220,6 +257,51 @@ function AdminDashboard() {
 					<h2 className="font-display text-2xl font-bold text-slate-900">Upload History</h2>
 					<p className="mt-1 text-sm text-slate-600">Review all uploaded legal PDF files and timestamps.</p>
 					<DocumentTable documents={documents} />
+				</section>
+			);
+		}
+
+		if (activeSection === 'leaveRequests') {
+			return (
+				<section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+					<h2 className="font-display text-2xl font-bold text-slate-900">Leave Requests</h2>
+					<p className="mt-1 text-sm text-slate-600">Employee leave and short leave requests captured by AI.</p>
+					<div className="mt-4 grid gap-4 md:grid-cols-3">
+						<div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+							<p className="text-xs uppercase tracking-[0.12em] text-slate-500">Total Requests</p>
+							<p className="mt-1 text-3xl font-bold text-slate-900">{leaveRequestStats.total}</p>
+						</div>
+						<div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+							<p className="text-xs uppercase tracking-[0.12em] text-slate-500">Submitted</p>
+							<p className="mt-1 text-3xl font-bold text-slate-900">{leaveRequestStats.submitted}</p>
+						</div>
+					</div>
+					{leaveRequests.length === 0 ? (
+						<p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-slate-600">No leave requests yet.</p>
+					) : (
+						<ul className="mt-4 grid gap-3">
+							{leaveRequests.map((request) => (
+								<li key={request.id} className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+									<div className="flex flex-wrap items-center justify-between gap-2">
+										<p className="text-sm font-semibold text-slate-900">{request.employee_name || 'Employee'} - {formatLeaveType(request.leave_type)}</p>
+										<span className="rounded-full border border-blue-200 bg-white px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-700">{request.status}</span>
+									</div>
+									<p className="mt-1 text-sm text-slate-700">{request.summary || request.raw_message}</p>
+									<p className="mt-2 text-xs uppercase tracking-[0.12em] text-slate-500">{request.department || 'No department'} | {request.submitted_at || '-'}</p>
+									<div className="mt-3 grid gap-1 text-sm text-slate-700">
+										<p><span className="font-semibold">Employee ID:</span> {request.employee_id || '-'}</p>
+										<p><span className="font-semibold">Leave Type:</span> {formatLeaveType(request.leave_type)}</p>
+										<p><span className="font-semibold">Duration:</span> {formatDuration(request)}</p>
+										<p><span className="font-semibold">No. of Days:</span> {request.number_of_days ?? '-'}</p>
+										<p><span className="font-semibold">Day Session:</span> {request.day_duration ? formatLeaveType(request.day_duration) : (request.leave_time || '-')}</p>
+										<p><span className="font-semibold">Emergency:</span> {request.is_emergency ? 'Yes' : 'No'}</p>
+										<p><span className="font-semibold">Contact During Leave:</span> {request.contact_during_leave || '-'}</p>
+										<p><span className="font-semibold">Reason:</span> {request.reason || '-'}</p>
+									</div>
+								</li>
+							))}
+						</ul>
+					)}
 				</section>
 			);
 		}

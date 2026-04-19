@@ -94,4 +94,23 @@ export const askRagQuestion = async ({ question, top_k = 4, document_id = null }
 	return response.data;
 };
 
+export const submitLeaveRequest = async ({ message, draft = {} }, token) => {
+	const response = await requestWithFallback({
+		method: 'post',
+		url: '/leave/request',
+		data: { message, draft },
+		headers: authHeaders(token),
+	});
+	return response.data;
+};
+
+export const getLeaveRequests = async (token) => {
+	const response = await requestWithFallback({
+		method: 'get',
+		url: '/leave/requests',
+		headers: authHeaders(token),
+	});
+	return response.data;
+};
+
 export default api;

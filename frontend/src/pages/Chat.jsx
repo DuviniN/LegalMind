@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { askRagQuestion, getDocuments } from '../api/client';
+import { askRagQuestion, getDocuments, submitLeaveRequest } from '../api/client';
 
 const starterPrompts = [
 	'Summarize the key obligations in this contract.',
@@ -10,16 +10,56 @@ const starterPrompts = [
 	'Explain this clause in simple business language.',
 ];
 
+const isLeaveIntent = (text) => {
+	const value = (text || '').toLowerCase();
+	if (!value) {
+		return false;
+	}
+	return /\bleave\b|short\s*leave|day\s*off|half\s*day|time\s*off|permission/i.test(value);
+};
+
+const toErrorText = (error, fallback = 'Request failed.') => {
+	const detail = error?.response?.data?.detail;
+	if (Array.isArray(detail)) {
+		const lines = detail.map((item) => {
+			const path = Array.isArray(item?.loc) ? item.loc.join('.') : 'field';
+			const message = item?.msg || 'Invalid input';
+			return `${path}: ${message}`;
+		});
+		return lines.join('; ');
+	}
+
+	if (detail && typeof detail === 'object') {
+		return JSON.stringify(detail);
+	}
+
+	if (typeof detail === 'string' && detail.trim()) {
+		return detail;
+	}
+
+	const payload = error?.response?.data;
+	if (payload && typeof payload === 'object') {
+		return JSON.stringify(payload);
+	}
+
+	if (typeof payload === 'string' && payload.trim()) {
+		return payload;
+	}
+
+	return error?.message || fallback;
+};
+
 function Chat() {
 	const [question, setQuestion] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [status, setStatus] = useState('');
 	const [documents, setDocuments] = useState([]);
 	const [selectedDocumentId, setSelectedDocumentId] = useState('');
+	const [leaveDraft, setLeaveDraft] = useState({});
 	const [messages, setMessages] = useState([
 		{
 			role: 'assistant',
-			text: 'Welcome to LegalMind AI. Ask a question about your uploaded PDFs and I will answer from indexed document context.',
+			text: 'Welcome to LegalMind AI. Ask company policy questions or tell me your leave request. I will answer from document context and guide leave submission when needed.',
 		},
 	]);
 	const [threads, setThreads] = useState([{ id: 'current', title: 'Current Conversation', updatedAt: 'Just now' }]);
@@ -37,7 +77,7 @@ function Chat() {
 					setSelectedDocumentId(indexedDocs[0].id);
 				}
 			} catch (error) {
-				setStatus(error?.response?.data?.detail || 'Failed to load documents for chat context.');
+				setStatus(toErrorText(error, 'Failed to load documents for chat context.'));
 			}
 		};
 
@@ -71,6 +111,40 @@ function Chat() {
 		});
 
 		try {
+			const leaveFlowActive = Object.keys(leaveDraft).length > 0;
+			if (leaveFlowActive || isLeaveIntent(cleanQuestion)) {
+				const leaveResponse = await submitLeaveRequest(
+					{
+						message: cleanQuestion,
+						draft: leaveDraft,
+					},
+					token
+				);
+
+				if (leaveResponse?.status === 'needs_more_info') {
+					setLeaveDraft(leaveResponse?.draft || leaveDraft);
+					setMessages((prev) => [
+						...prev,
+						{
+							role: 'assistant',
+							text: leaveResponse?.next_question || 'Please provide the remaining leave details.',
+						},
+					]);
+				} else {
+					setLeaveDraft({});
+					const summaryLine = leaveResponse?.request?.summary ? `\n\nSummary: ${leaveResponse.request.summary}` : '';
+					setMessages((prev) => [
+						...prev,
+						{
+							role: 'assistant',
+							text: `${leaveResponse?.message || 'Leave request submitted to manager dashboard.'}${summaryLine}`,
+						},
+					]);
+				}
+
+				return;
+			}
+
 			const ragResponse = await askRagQuestion(
 				{
 					question: cleanQuestion,
@@ -96,11 +170,7 @@ function Chat() {
 				// Ignore parse failures and keep chat UI responsive.
 			}
 		} catch (error) {
-			const detail =
-				error?.response?.data?.detail ||
-				error?.response?.data ||
-				error?.message ||
-				'RAG request failed. Check backend and token.';
+			const detail = toErrorText(error, 'RAG request failed. Check backend and token.');
 			setStatus(detail);
 			setMessages((prev) => [...prev, { role: 'assistant', text: `I could not process this question. ${detail}` }]);
 		} finally {
@@ -131,6 +201,7 @@ function Chat() {
 											text: 'New chat started. Ask anything about legal clauses, compliance, or document review.',
 										},
 									]);
+									setLeaveDraft({});
 									setQuestion('');
 								}}
 								className="mt-3 w-full rounded-xl border border-blue-600 bg-blue-600 px-4 py-2.5 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-blue-700"

@@ -142,6 +142,15 @@ After login, pass `Authorization: Bearer <token>` header.
 - `POST /rag/query`: Agentic RAG workflow (query planning, multi-step retrieval, refinement retry, answer generation).
 - `GET /history`: Returns chat history logs, optional `user_id` filter, sorted latest first.
 
+## Leave Request Tool
+
+Employees can submit leave or short leave requests through the AI assistant.
+
+- `POST /leave/request`: Extracts leave details from a natural-language message, validates required fields, and saves the request for managers.
+- `GET /leave/requests`: Returns saved leave requests for the manager dashboard.
+
+Required details are checked by the AI service before saving, so incomplete requests are returned with missing fields instead of being sent to managers.
+
 `POST /rag/query` response includes:
 
 - `user_id`
