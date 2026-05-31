@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { askRagQuestion, getDocuments, submitLeaveRequest } from '../api/client';
+import { agentQuery, getDocuments } from '../api/client';
 
 const starterPrompts = [
 	'Summarize the key obligations in this contract.',
@@ -9,14 +9,6 @@ const starterPrompts = [
 	'Create a checklist for vendor agreement compliance.',
 	'Explain this clause in simple business language.',
 ];
-
-const isLeaveIntent = (text) => {
-	const value = (text || '').toLowerCase();
-	if (!value) {
-		return false;
-	}
-	return /\bleave\b|short\s*leave|day\s*off|half\s*day|time\s*off|permission/i.test(value);
-};
 
 const toErrorText = (error, fallback = 'Request failed.') => {
 	const detail = error?.response?.data?.detail;
@@ -89,6 +81,10 @@ function Chat() {
 		[documents]
 	);
 
+	const uploadedDocumentCount = documents.length;
+	const hasUploadedDocuments = uploadedDocumentCount > 0;
+	const hasIndexedDocuments = indexedDocumentOptions.length > 0;
+
 	const submitQuestion = async (rawQuestion) => {
 		const cleanQuestion = rawQuestion.trim();
 		if (!cleanQuestion) {
@@ -112,55 +108,30 @@ function Chat() {
 
 		try {
 			const leaveFlowActive = Object.keys(leaveDraft).length > 0;
-			if (leaveFlowActive || isLeaveIntent(cleanQuestion)) {
-				const leaveResponse = await submitLeaveRequest(
-					{
-						message: cleanQuestion,
-						draft: leaveDraft,
-					},
-					token
-				);
-
-				if (leaveResponse?.status === 'needs_more_info') {
-					setLeaveDraft(leaveResponse?.draft || leaveDraft);
-					setMessages((prev) => [
-						...prev,
-						{
-							role: 'assistant',
-							text: leaveResponse?.next_question || 'Please provide the remaining leave details.',
-						},
-					]);
-				} else {
-					setLeaveDraft({});
-					const summaryLine = leaveResponse?.request?.summary ? `\n\nSummary: ${leaveResponse.request.summary}` : '';
-					setMessages((prev) => [
-						...prev,
-						{
-							role: 'assistant',
-							text: `${leaveResponse?.message || 'Leave request submitted to manager dashboard.'}${summaryLine}`,
-						},
-					]);
-				}
-
-				return;
-			}
-
-			const ragResponse = await askRagQuestion(
+			const agentResponse = await agentQuery(
 				{
-					question: cleanQuestion,
+					message: cleanQuestion,
 					top_k: 4,
 					document_id: selectedDocumentId || null,
+					leave_draft: leaveFlowActive ? leaveDraft : null,
 				},
 				token
 			);
 
-			const sourceLine = Array.isArray(ragResponse?.sources) && ragResponse.sources.length
-				? `\n\nSources: ${ragResponse.sources.join(', ')}`
-				: '';
-			const confidenceLine = ragResponse?.confidence ? `\nConfidence: ${ragResponse.confidence}` : '';
-			const assistantAnswer = `${ragResponse?.answer || 'No answer generated.'}${sourceLine}${confidenceLine}`;
+			if (agentResponse?.intent === 'leave_request') {
+				const leaveResponse = agentResponse?.leave;
+				if (leaveResponse?.status === 'needs_more_info') {
+					setLeaveDraft(leaveResponse?.draft || leaveDraft);
+				} else {
+					setLeaveDraft({});
+				}
+			} else {
+				setLeaveDraft({});
+			}
 
+			const assistantAnswer = agentResponse?.assistant_message || 'No response generated.';
 			setMessages((prev) => [...prev, { role: 'assistant', text: assistantAnswer }]);
+
 			try {
 				const existing = JSON.parse(localStorage.getItem('legalmind_chat_history') || '[]');
 				const normalizedHistory = Array.isArray(existing) ? existing : [];
@@ -226,7 +197,7 @@ function Chat() {
 								</p>
 								<h2 className="mt-2 font-display text-2xl font-bold text-slate-900 sm:text-3xl">LegalMind Conversation</h2>
 								<p className="mt-1 text-sm text-slate-600">Natural chat-style responses for legal operations and document understanding.</p>
-								{indexedDocumentOptions.length > 0 ? (
+								{hasIndexedDocuments ? (
 									<div className="mt-3 max-w-xl">
 										<label className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Answer Context</label>
 										<select
@@ -240,8 +211,12 @@ function Chat() {
 											))}
 										</select>
 									</div>
+								) : hasUploadedDocuments ? (
+									<p className="mt-3 text-sm text-amber-700">
+										Documents were uploaded, but none are indexed yet. Wait for indexing to finish or re-upload the PDF.
+									</p>
 								) : (
-									<p className="mt-3 text-sm text-amber-700">No indexed PDF found. Upload a PDF first, then ask questions.</p>
+									<p className="mt-3 text-sm text-amber-700">No uploaded PDF found. Upload a PDF first, then ask questions.</p>
 								)}
 								{status ? <p className="mt-2 text-sm text-red-700">{status}</p> : null}
 							</header>

@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const DEFAULT_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+const DEFAULT_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const ENABLE_NETWORK_FALLBACK = !DEFAULT_BASE_URL.startsWith('/');
 const FALLBACK_BASE_URLS = ENABLE_NETWORK_FALLBACK
-	? Array.from(new Set([DEFAULT_BASE_URL, 'http://127.0.0.1:8000']))
+	? Array.from(new Set([DEFAULT_BASE_URL, '/api']))
 	: [DEFAULT_BASE_URL];
 
 const api = axios.create({
@@ -79,26 +79,15 @@ export const getDocuments = async (token) => {
 	return response.data;
 };
 
-export const askRagQuestion = async ({ question, top_k = 4, document_id = null }, token) => {
-	const payload = { question, top_k };
-	if (document_id) {
-		payload.document_id = document_id;
-	}
-
+export const agentQuery = async (
+	{ message, top_k = 4, document_id = null, leave_draft = null },
+	token
+) => {
+	const payload = { message, top_k, document_id, leave_draft };
 	const response = await requestWithFallback({
 		method: 'post',
-		url: '/rag/query',
+		url: '/agent/query',
 		data: payload,
-		headers: authHeaders(token),
-	});
-	return response.data;
-};
-
-export const submitLeaveRequest = async ({ message, draft = {} }, token) => {
-	const response = await requestWithFallback({
-		method: 'post',
-		url: '/leave/request',
-		data: { message, draft },
 		headers: authHeaders(token),
 	});
 	return response.data;

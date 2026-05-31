@@ -1,11 +1,6 @@
 from pydantic import BaseModel, Field
 
 
-class LeaveRequestCreate(BaseModel):
-	message: str = Field(..., min_length=1, description="Natural language leave or short-leave request from an employee")
-	draft: dict[str, str] | None = Field(default=None, description="Previously collected leave fields")
-
-
 class LeaveRequestItem(BaseModel):
 	id: str
 	company_id: str

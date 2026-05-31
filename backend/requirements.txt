@@ -4,6 +4,7 @@ python-dotenv
 motor
 python-multipart
 email-validator
+httpx
 langchain
 langchain-text-splitters
 langgraph

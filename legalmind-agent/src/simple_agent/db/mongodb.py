@@ -1,5 +1,6 @@
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-from app.core.config import settings   # adjust path if needed
+
+from simple_agent.core.config import settings
 
 
 class MongoDB:
@@ -10,8 +11,7 @@ class MongoDB:
 db = MongoDB()
 
 
-# connect function
-async def connect_to_mongo():
+async def connect_to_mongo() -> None:
     if db.client and db.database:
         return
 
@@ -23,11 +23,8 @@ async def connect_to_mongo():
     db.client = AsyncIOMotorClient(settings.mongodb_uri, serverSelectionTimeoutMS=5000)
     await db.client.admin.command("ping")
     db.database = db.client[settings.mongodb_db_name]
-    print("✅ Connected to MongoDB")
 
 
-# disconnect function (optional but good practice)
-async def close_mongo_connection():
+async def close_mongo_connection() -> None:
     if db.client:
         db.client.close()
-        print("❌ MongoDB connection closed")

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import auth_router, documents_router, health_router, leave_router, rag_router
+from app.api.routes import agent_router, auth_router, documents_router, health_router, leave_router
 from app.db.mongodb import close_mongo_connection, connect_to_mongo
 
 app = FastAPI(title="LegalMind Backend")
@@ -27,4 +27,4 @@ app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(documents_router)
 app.include_router(leave_router)
-app.include_router(rag_router)
+app.include_router(agent_router)

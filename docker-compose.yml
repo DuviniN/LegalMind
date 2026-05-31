@@ -1,0 +1,54 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  agent:
+    build:
+      context: ./legalmind-agent
+    env_file:
+      - ./legalmind-agent/.env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB_NAME: LegalMindDb
+      CHROMA_PERSIST_DIR: /data/chroma
+    volumes:
+      - agent_uploads:/app/uploads
+      - chroma_data:/data/chroma
+    depends_on:
+      - mongo
+    ports:
+      - "8101:8101"
+
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      AGENT_SERVER_URL: http://agent:8101
+    depends_on:
+      - mongo
+      - agent
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+
+volumes:
+  mongo_data:
+  chroma_data:
+  agent_uploads:

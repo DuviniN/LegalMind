@@ -12,6 +12,9 @@ bearer_scheme = HTTPBearer(auto_error=False)
 async def get_current_company(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> dict:
+    if db.database is None:
+        raise HTTPException(status_code=503, detail="Database connection is not ready")
+
     if not credentials or credentials.scheme.lower() != "bearer":
         raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
 
@@ -53,6 +56,14 @@ async def _resolve_internal_company() -> dict:
 async def get_chat_company(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> dict:
+    if db.database is None:
+        if settings.internal_chat_no_auth:
+            return {
+                "_id": settings.internal_default_company_id or "internal",
+                "name": "Internal Company",
+            }
+        raise HTTPException(status_code=503, detail="Database connection is not ready")
+
     if credentials and credentials.scheme.lower() == "bearer":
         token = credentials.credentials.strip()
         if token:
