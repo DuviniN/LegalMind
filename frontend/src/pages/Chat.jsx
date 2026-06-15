@@ -1,14 +1,38 @@
 import { useEffect, useMemo, useState } from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import { Link, useNavigate } from 'react-router-dom';
 import { agentQuery, getDocuments } from '../api/client';
 
-const starterPrompts = [
-	'Summarize the key obligations in this contract.',
-	'What legal risks should I review before signing?',
-	'Create a checklist for vendor agreement compliance.',
-	'Explain this clause in simple business language.',
-];
+function MenuIcon() {
+	return (
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
+			<path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+		</svg>
+	);
+}
+
+function CloseIcon() {
+	return (
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
+			<path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+		</svg>
+	);
+}
+
+function PlusIcon() {
+	return (
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-4 w-4">
+			<path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+		</svg>
+	);
+}
+
+function SendIcon() {
+	return (
+		<svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+			<path d="M3.105 2.289a.75.75 0 0 0-.826.95l1.414 4.949a.75.75 0 0 0 .59.53l6.347 1.215a.75.75 0 0 1 0 1.474l-6.347 1.215a.75.75 0 0 0-.59.53l-1.414 4.949a.75.75 0 0 0 .826.95 28.896 28.896 0 0 0 15.293-7.155.75.75 0 0 0 0-1.115A28.897 28.897 0 0 0 3.105 2.289Z" />
+		</svg>
+	);
+}
 
 const toErrorText = (error, fallback = 'Request failed.') => {
 	const detail = error?.response?.data?.detail;
@@ -42,20 +66,26 @@ const toErrorText = (error, fallback = 'Request failed.') => {
 };
 
 function Chat() {
+	const navigate = useNavigate();
 	const [question, setQuestion] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [status, setStatus] = useState('');
 	const [documents, setDocuments] = useState([]);
 	const [selectedDocumentId, setSelectedDocumentId] = useState('');
 	const [leaveDraft, setLeaveDraft] = useState({});
+	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [messages, setMessages] = useState([
 		{
 			role: 'assistant',
 			text: 'Welcome to LegalMind AI. Ask company policy questions or tell me your leave request. I will answer from document context and guide leave submission when needed.',
 		},
 	]);
-	const [threads, setThreads] = useState([{ id: 'current', title: 'Current Conversation', updatedAt: 'Just now' }]);
+	const [threads, setThreads] = useState([{ id: 'current', title: 'New Conversation', updatedAt: 'Just now' }]);
+
 	const token = localStorage.getItem('auth_token');
+	const companyName = (localStorage.getItem('company_name') || '').trim();
+	const isAuthenticated = Boolean(token);
+	const profileInitial = (companyName.charAt(0) || 'U').toUpperCase();
 
 	useEffect(() => {
 		const loadDocuments = async () => {
@@ -81,9 +111,8 @@ function Chat() {
 		[documents]
 	);
 
-	const uploadedDocumentCount = documents.length;
-	const hasUploadedDocuments = uploadedDocumentCount > 0;
 	const hasIndexedDocuments = indexedDocumentOptions.length > 0;
+	const isFreshConversation = messages.length <= 1;
 
 	const submitQuestion = async (rawQuestion) => {
 		const cleanQuestion = rawQuestion.trim();
@@ -154,155 +183,241 @@ function Chat() {
 		submitQuestion(question);
 	};
 
-	return (
-		<div className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#eff6ff_58%,#f6fbff_100%)] text-slate-800">
-			<div className="grid min-h-screen w-full grid-rows-[auto_1fr_auto] gap-4 px-4 py-4 lg:px-6 lg:py-6">
-				<Navbar showHome showSignIn={false} showSignUp={false} />
+	const handleKeyDown = (event) => {
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault();
+			submitQuestion(question);
+		}
+	};
 
-				<main className="grid h-full gap-4">
-					<section className="grid min-h-[40rem] overflow-hidden rounded-3xl border border-blue-100 bg-white/92 shadow-[0_14px_36px_rgba(37,99,235,0.12)] backdrop-blur-sm lg:grid-cols-[17rem_1fr]">
-						<aside className="border-b border-blue-100 bg-gradient-to-b from-blue-50 to-white p-4 lg:border-b-0 lg:border-r">
-							<p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">Conversations</p>
+	const handleNewChat = () => {
+		setMessages([
+			{
+				role: 'assistant',
+				text: 'New chat started. Ask anything about legal clauses, compliance, or document review.',
+			},
+		]);
+		setThreads([{ id: 'current', title: 'New Conversation', updatedAt: 'Just now' }]);
+		setLeaveDraft({});
+		setQuestion('');
+		setStatus('');
+		setSidebarOpen(false);
+	};
+
+	const handleLogout = () => {
+		localStorage.removeItem('auth_token');
+		localStorage.removeItem('company_name');
+		localStorage.removeItem('user_role');
+		navigate('/');
+	};
+
+	return (
+		<div className="flex h-screen w-full overflow-hidden bg-white text-slate-800">
+			{sidebarOpen ? (
+				<div
+					className="fixed inset-0 z-30 bg-slate-900/50 lg:hidden"
+					onClick={() => setSidebarOpen(false)}
+					aria-hidden="true"
+				/>
+			) : null}
+
+			<aside
+				className={`fixed inset-y-0 left-0 z-40 flex w-72 flex-shrink-0 flex-col bg-slate-900 text-slate-100 transition-transform duration-200 lg:static lg:translate-x-0 ${
+					sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+				}`}
+			>
+				<div className="flex items-center justify-between gap-2 px-4 py-4">
+					<Link to="/" className="flex items-center gap-2.5">
+						<span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 text-sm font-bold text-white">
+							LM
+						</span>
+						<span className="font-display text-lg font-bold tracking-wide text-white">LegalMind</span>
+					</Link>
+					<button
+						type="button"
+						onClick={() => setSidebarOpen(false)}
+						className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white lg:hidden"
+						aria-label="Close sidebar"
+					>
+						<CloseIcon />
+					</button>
+				</div>
+
+				<div className="px-3">
+					<button
+						type="button"
+						onClick={handleNewChat}
+						className="flex w-full items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+					>
+						<PlusIcon />
+						New Chat
+					</button>
+				</div>
+
+				<div className="mt-5 flex-1 overflow-y-auto px-3">
+					<p className="px-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Conversations</p>
+					<div className="mt-2 grid gap-1">
+						{threads.map((thread) => (
+							<div key={thread.id} className="truncate rounded-lg bg-white/10 px-3 py-2.5 text-sm font-medium text-slate-100">
+								{thread.title}
+							</div>
+						))}
+					</div>
+				</div>
+
+				<div className="border-t border-white/10 px-3 py-3">
+					{isAuthenticated ? (
+						<div className="flex items-center justify-between gap-2 rounded-xl bg-white/5 px-3 py-2.5">
+							<div className="flex min-w-0 items-center gap-2.5">
+								<span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-sm font-bold text-white">
+									{profileInitial}
+								</span>
+								<span className="truncate text-sm font-semibold text-white">{companyName || 'Account'}</span>
+							</div>
 							<button
 								type="button"
-								onClick={() => {
-									setMessages([
-										{
-											role: 'assistant',
-											text: 'New chat started. Ask anything about legal clauses, compliance, or document review.',
-										},
-									]);
-									setLeaveDraft({});
-									setQuestion('');
-								}}
-								className="mt-3 w-full rounded-xl border border-blue-600 bg-blue-600 px-4 py-2.5 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-blue-700"
+								onClick={handleLogout}
+								className="flex-shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
 							>
-								New Chat
+								Logout
 							</button>
-
-							<div className="mt-4 grid gap-2">
-								{threads.map((thread) => (
-									<div key={thread.id} className="rounded-xl border border-blue-100 bg-white px-3 py-2.5">
-										<p className="truncate text-sm font-semibold text-slate-900">{thread.title}</p>
-										<p className="mt-0.5 text-xs uppercase tracking-[0.12em] text-slate-500">Updated {thread.updatedAt}</p>
-									</div>
-								))}
-							</div>
-						</aside>
-
-						<div className="flex min-h-[34rem] flex-col">
-							<header className="border-b border-blue-100 px-4 py-4 sm:px-6">
-								<p className="inline-flex w-fit rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-700">
-									AI Legal Assistant
-								</p>
-								<h2 className="mt-2 font-display text-2xl font-bold text-slate-900 sm:text-3xl">LegalMind Conversation</h2>
-								<p className="mt-1 text-sm text-slate-600">Natural chat-style responses for legal operations and document understanding.</p>
-								{hasIndexedDocuments ? (
-									<div className="mt-3 max-w-xl">
-										<label className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Answer Context</label>
-										<select
-											className="w-full rounded-xl border border-blue-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
-											value={selectedDocumentId}
-											onChange={(event) => setSelectedDocumentId(event.target.value)}
-										>
-											<option value="">All indexed documents</option>
-											{indexedDocumentOptions.map((doc) => (
-												<option key={doc.id} value={doc.id}>{doc.file_name}</option>
-											))}
-										</select>
-									</div>
-								) : hasUploadedDocuments ? (
-									<p className="mt-3 text-sm text-amber-700">
-										Documents were uploaded, but none are indexed yet. Wait for indexing to finish or re-upload the PDF.
-									</p>
-								) : (
-									<p className="mt-3 text-sm text-amber-700">No uploaded PDF found. Upload a PDF first, then ask questions.</p>
-								)}
-								{status ? <p className="mt-2 text-sm text-red-700">{status}</p> : null}
-							</header>
-
-							<div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
-								<div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
-									{messages.map((message, index) => (
-										<div
-											key={`${message.role}-${index}`}
-											className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-										>
-											{message.role === 'assistant' ? (
-												<div className="flex max-w-[96%] items-start gap-3 sm:max-w-[92%]">
-													<span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-xs font-bold uppercase tracking-[0.12em] text-blue-700">
-														AI
-													</span>
-													<div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-relaxed text-slate-700 whitespace-pre-line">
-														{message.text}
-													</div>
-												</div>
-											) : (
-												<div className="max-w-[92%] rounded-2xl border border-blue-600 bg-blue-600 px-4 py-3 text-sm leading-relaxed text-white whitespace-pre-line">
-													{message.text}
-												</div>
-											)}
-										</div>
-									))}
-
-									{loading ? (
-										<div className="flex items-start gap-3">
-											<span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-xs font-bold uppercase tracking-[0.12em] text-blue-700">
-												AI
-											</span>
-											<div className="inline-flex items-center gap-1.5 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-slate-600">
-												<span className="h-2 w-2 animate-pulse rounded-full bg-blue-400" />
-												<span className="h-2 w-2 animate-pulse rounded-full bg-blue-400 [animation-delay:120ms]" />
-												<span className="h-2 w-2 animate-pulse rounded-full bg-blue-400 [animation-delay:240ms]" />
-											</div>
-										</div>
-									) : null}
-								</div>
-							</div>
-
-							<div className="border-t border-blue-100 bg-white px-4 py-4 sm:px-6">
-								<div className="mx-auto w-full max-w-4xl">
-									<div className="mb-3 flex flex-wrap gap-2">
-										{starterPrompts.map((prompt) => (
-											<button
-												key={prompt}
-												type="button"
-												onClick={() => submitQuestion(prompt)}
-												className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
-											>
-												{prompt}
-											</button>
-										))}
-									</div>
-
-									<form className="grid gap-2 sm:grid-cols-[1fr_auto]" onSubmit={handleSubmit}>
-										<textarea
-											className="min-h-[3.25rem] rounded-2xl border border-blue-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
-											placeholder="Message LegalMind AI..."
-											value={question}
-											onChange={(event) => setQuestion(event.target.value)}
-										/>
-										<button
-											className="rounded-2xl border border-blue-600 bg-blue-600 px-6 py-3 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
-											type="submit"
-											disabled={loading}
-										>
-											{loading ? 'Thinking...' : 'Send'}
-										</button>
-									</form>
-								</div>
+						</div>
+					) : (
+						<div className="grid gap-2.5">
+							<p className="px-1 text-xs leading-relaxed text-slate-400">
+								Sign in to upload documents and manage your legal workspace.
+							</p>
+							<div className="grid grid-cols-2 gap-2">
+								<Link
+									to="/login"
+									className="rounded-lg border border-white/15 px-3 py-2 text-center text-xs font-semibold text-slate-100 transition hover:bg-white/10"
+								>
+									Sign In
+								</Link>
+								<Link
+									to="/register"
+									className="rounded-lg bg-white px-3 py-2 text-center text-xs font-semibold text-slate-900 transition hover:bg-slate-100"
+								>
+									Get Started
+								</Link>
 							</div>
 						</div>
-					</section>
-				</main>
+					)}
+				</div>
+			</aside>
 
-				<Footer
-					summary="Simple legal AI chat with clear responses and source references."
-					links={[
-						{ to: '/documents', label: 'Workspace' },
-						{ to: '/chat', label: 'Chat Assistant' },
-					]}
-				/>
+			<div className="flex h-full min-w-0 flex-1 flex-col">
+				<header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 sm:px-6">
+					<div className="flex items-center gap-3">
+						<button
+							type="button"
+							onClick={() => setSidebarOpen(true)}
+							className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 lg:hidden"
+							aria-label="Open sidebar"
+						>
+							<MenuIcon />
+						</button>
+						<div>
+							<p className="text-sm font-bold text-slate-900">LegalMind AI Assistant</p>
+							<p className="text-xs text-slate-500">Natural chat for legal operations and document understanding</p>
+						</div>
+					</div>
+
+					{hasIndexedDocuments ? (
+						<select
+							className="max-w-[14rem] rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+							value={selectedDocumentId}
+							onChange={(event) => setSelectedDocumentId(event.target.value)}
+						>
+							<option value="">All indexed documents</option>
+							{indexedDocumentOptions.map((doc) => (
+								<option key={doc.id} value={doc.id}>{doc.file_name}</option>
+							))}
+						</select>
+					) : null}
+				</header>
+
+				<div className="flex-1 overflow-y-auto">
+					<div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-6 sm:px-6">
+						{isFreshConversation ? (
+							<div className="mt-6 flex flex-col items-center text-center sm:mt-16">
+								<span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 text-lg font-bold text-white shadow-lg shadow-blue-500/20">
+									AI
+								</span>
+								<h1 className="mt-4 font-display text-2xl font-bold text-slate-900 sm:text-3xl">
+									How can I help with your legal questions today?
+								</h1>
+								<p className="mt-2 max-w-md text-sm text-slate-500">
+									Ask about policies, contract clauses, compliance steps, or submit a leave request — no account needed.
+								</p>
+							</div>
+						) : (
+							messages.map((message, index) => (
+								<div
+									key={`${message.role}-${index}`}
+									className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+								>
+									{message.role === 'assistant' ? (
+										<div className="flex max-w-[92%] items-start gap-3">
+											<span className="mt-0.5 inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-xs font-bold text-white">
+												AI
+											</span>
+											<div className="rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3 text-sm leading-relaxed text-slate-700 whitespace-pre-line">
+												{message.text}
+											</div>
+										</div>
+									) : (
+										<div className="max-w-[88%] rounded-2xl rounded-tr-sm bg-blue-600 px-4 py-3 text-sm leading-relaxed text-white whitespace-pre-line">
+											{message.text}
+										</div>
+									)}
+								</div>
+							))
+						)}
+
+						{loading ? (
+							<div className="flex items-start gap-3">
+								<span className="mt-0.5 inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-xs font-bold text-white">
+									AI
+								</span>
+								<div className="inline-flex items-center gap-1.5 rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3.5">
+									<span className="h-2 w-2 animate-pulse rounded-full bg-slate-400" />
+									<span className="h-2 w-2 animate-pulse rounded-full bg-slate-400 [animation-delay:120ms]" />
+									<span className="h-2 w-2 animate-pulse rounded-full bg-slate-400 [animation-delay:240ms]" />
+								</div>
+							</div>
+						) : null}
+					</div>
+				</div>
+
+				<div className="border-t border-slate-100 bg-white px-4 py-4 sm:px-6">
+					<div className="mx-auto max-w-3xl">
+						{status ? (
+							<p className="mb-2 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-700">{status}</p>
+						) : null}
+						<form className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-2 shadow-sm transition focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100" onSubmit={handleSubmit}>
+							<textarea
+								className="max-h-40 min-h-[2.75rem] flex-1 resize-none bg-transparent px-3 py-2.5 text-sm text-slate-700 outline-none placeholder:text-slate-400"
+								placeholder="Message LegalMind AI..."
+								rows={1}
+								value={question}
+								onChange={(event) => setQuestion(event.target.value)}
+								onKeyDown={handleKeyDown}
+							/>
+							<button
+								className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+								type="submit"
+								disabled={loading || !question.trim()}
+								aria-label="Send message"
+							>
+								<SendIcon />
+							</button>
+						</form>
+						<p className="mt-2 text-center text-[11px] text-slate-400">
+							LegalMind AI can make mistakes. Verify important legal information.
+						</p>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
