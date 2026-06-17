@@ -147,7 +147,7 @@ function Landing() {
 						poster="/videos/hero-poster.jpg"
 						aria-hidden="true"
 					>
-						<source src="/videos/hero-background.mp4" type="video/mp4" />
+						<source src="/videos/landing-hero.mp4" type="video/mp4" />
 					</video>
 
 					<div className="absolute inset-0 bg-gradient-to-b from-slate-950/90 via-slate-950/70 to-slate-950" />
@@ -190,12 +190,6 @@ function Landing() {
 								<BriefcaseIcon />
 								View Vacancies
 							</Link>
-							<a
-								href="#features"
-								className="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/5 px-8 py-3.5 text-base font-semibold text-white backdrop-blur transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
-							>
-								Learn More
-							</a>
 						</div>
 					</div>
 

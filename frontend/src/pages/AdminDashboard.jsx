@@ -43,6 +43,22 @@ const EMPTY_VACANCY_FORM = {
 	requirements: '',
 };
 
+const SHELL_CLASS = 'min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.18),transparent_34%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.16),transparent_32%),linear-gradient(180deg,#f8fbff_0%,#eef4ff_52%,#f7fbff_100%)] text-slate-800';
+const PAGE_FRAME_CLASS = 'grid min-h-screen w-full grid-rows-[auto_1fr_auto] gap-5 px-4 py-4 lg:px-6 lg:py-6';
+const DASHBOARD_CLASS = 'grid h-full gap-5 rounded-[30px] border border-white/70 bg-white/82 p-4 shadow-[0_30px_80px_rgba(15,23,42,0.12)] backdrop-blur-xl lg:grid-cols-[18rem_1fr] lg:p-6';
+const SIDEBAR_CLASS = 'rounded-[26px] border border-blue-100/70 bg-gradient-to-b from-blue-50 via-white to-white p-3 shadow-sm';
+const HERO_CLASS = 'rounded-[30px] border border-white/60 bg-white/75 p-5 shadow-[0_18px_48px_rgba(37,99,235,0.1)] backdrop-blur-xl';
+const PANEL_CLASS = 'rounded-[28px] border border-blue-100/70 bg-white/92 p-6 shadow-[0_20px_45px_rgba(37,99,235,0.1)] backdrop-blur-sm';
+const SOFT_CARD_CLASS = 'rounded-2xl border border-blue-100/70 bg-gradient-to-br from-white to-blue-50/70 p-5 shadow-sm';
+const STAT_CARD_CLASS = 'rounded-2xl border border-blue-100/70 bg-white/90 p-5 shadow-sm backdrop-blur';
+const INPUT_CLASS = 'w-full rounded-xl border border-slate-200 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100';
+const TEXTAREA_CLASS = `${INPUT_CLASS} min-h-[120px]`;
+const PRIMARY_BUTTON_CLASS = 'rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:translate-y-[-1px] hover:shadow-blue-600/35 disabled:cursor-not-allowed disabled:opacity-70';
+const SECONDARY_BUTTON_CLASS = 'rounded-xl border border-blue-200 bg-white px-4 py-2.5 text-sm font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-50';
+const SIDEBAR_BUTTON_BASE_CLASS = 'rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition';
+const SIDEBAR_BUTTON_ACTIVE_CLASS = 'border-blue-600 bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-sm';
+const SIDEBAR_BUTTON_INACTIVE_CLASS = 'border-blue-100 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50';
+
 function formatEmploymentType(value) {
 	if (!value) return '-';
 	return value.replaceAll('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
@@ -318,10 +334,10 @@ function AdminDashboard() {
 					</section>
 
 					<section className="grid gap-4 lg:grid-cols-2">
-						<div className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+						<div className={SOFT_CARD_CLASS}>
 							<h3 className="font-display text-xl font-bold text-slate-900">Recent Document Activity</h3>
 							{documents.length === 0 ? (
-								<p className="mt-3 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-slate-600">No uploads yet. Start by uploading your first PDF.</p>
+								<p className="mt-3 rounded-xl border border-blue-100/70 bg-blue-50/70 p-4 text-sm text-slate-600">No uploads yet. Start by uploading your first PDF.</p>
 							) : (
 								<ul className="mt-3 grid gap-2">
 									{documents.slice(0, 3).map((doc) => (
@@ -333,7 +349,7 @@ function AdminDashboard() {
 							)}
 						</div>
 
-						<div className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+						<div className={SOFT_CARD_CLASS}>
 							<h3 className="font-display text-xl font-bold text-slate-900">Manager Checklist</h3>
 							<ul className="mt-3 grid gap-2 text-sm text-slate-700">
 								<li className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2">Review latest uploads for compliance accuracy.</li>
@@ -348,7 +364,7 @@ function AdminDashboard() {
 
 		if (activeSection === 'profile') {
 			return (
-				<section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+				<section className={PANEL_CLASS}>
 					<p className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-700">
 						Manager Profile
 					</p>
@@ -370,7 +386,7 @@ function AdminDashboard() {
 
 		if (activeSection === 'upload') {
 			return (
-				<section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+				<section className={PANEL_CLASS}>
 					<h2 className="font-display text-2xl font-bold text-slate-900">Upload Document</h2>
 					<p className="mt-1 text-sm text-slate-600">Upload PDF files to your legal workspace securely.</p>
 					<form className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]" onSubmit={handleUpload}>
@@ -395,7 +411,7 @@ function AdminDashboard() {
 
 		if (activeSection === 'history') {
 			return (
-				<section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+				<section className={PANEL_CLASS}>
 					<h2 className="font-display text-2xl font-bold text-slate-900">Upload History</h2>
 					<p className="mt-1 text-sm text-slate-600">Review all uploaded legal PDF files and timestamps.</p>
 					<DocumentTable documents={documents} />
@@ -405,25 +421,25 @@ function AdminDashboard() {
 
 		if (activeSection === 'leaveRequests') {
 			return (
-				<section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+				<section className={PANEL_CLASS}>
 					<h2 className="font-display text-2xl font-bold text-slate-900">Leave Requests</h2>
 					<p className="mt-1 text-sm text-slate-600">Employee leave and short leave requests captured by AI.</p>
 					<div className="mt-4 grid gap-4 md:grid-cols-3">
-						<div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+						<div className={STAT_CARD_CLASS}>
 							<p className="text-xs uppercase tracking-[0.12em] text-slate-500">Total Requests</p>
 							<p className="mt-1 text-3xl font-bold text-slate-900">{leaveRequestStats.total}</p>
 						</div>
-						<div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+						<div className={STAT_CARD_CLASS}>
 							<p className="text-xs uppercase tracking-[0.12em] text-slate-500">Submitted</p>
 							<p className="mt-1 text-3xl font-bold text-slate-900">{leaveRequestStats.submitted}</p>
 						</div>
 					</div>
 					{leaveRequests.length === 0 ? (
-						<p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-slate-600">No leave requests yet.</p>
+						<p className="mt-4 rounded-xl border border-blue-100/70 bg-blue-50/70 p-4 text-sm text-slate-600">No leave requests yet.</p>
 					) : (
 						<ul className="mt-4 grid gap-3">
 							{leaveRequests.map((request) => (
-								<li key={request.id} className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+								<li key={request.id} className="rounded-xl border border-blue-100/70 bg-white/85 p-4 shadow-sm">
 									<div className="flex flex-wrap items-center justify-between gap-2">
 										<p className="text-sm font-semibold text-slate-900">{request.employee_name || 'Employee'} - {formatLeaveType(request.leave_type)}</p>
 										<span className="rounded-full border border-blue-200 bg-white px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-700">{request.status}</span>
@@ -450,7 +466,7 @@ function AdminDashboard() {
 
 		if (activeSection === 'postVacancy') {
 			return (
-				<section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+					<section className={PANEL_CLASS}>
 					<h2 className="font-display text-2xl font-bold text-slate-900">Post Vacancy</h2>
 					<p className="mt-1 text-sm text-slate-600">Publish a new job opening for candidates to view and apply.</p>
 					<form className="mt-4 grid gap-4" onSubmit={handleCreateVacancy}>
@@ -458,7 +474,7 @@ function AdminDashboard() {
 							<label className="block text-sm font-medium text-slate-700">
 								Job Title
 								<input
-									className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+									className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
 									type="text"
 									value={vacancyForm.title}
 									onChange={(event) => setVacancyForm((current) => ({ ...current, title: event.target.value }))}
@@ -469,7 +485,7 @@ function AdminDashboard() {
 							<label className="block text-sm font-medium text-slate-700">
 								Department
 								<input
-									className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+									className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
 									type="text"
 									value={vacancyForm.department}
 									onChange={(event) => setVacancyForm((current) => ({ ...current, department: event.target.value }))}
@@ -480,7 +496,7 @@ function AdminDashboard() {
 							<label className="block text-sm font-medium text-slate-700">
 								Location
 								<input
-									className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+									className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
 									type="text"
 									value={vacancyForm.location}
 									onChange={(event) => setVacancyForm((current) => ({ ...current, location: event.target.value }))}
@@ -491,7 +507,7 @@ function AdminDashboard() {
 							<label className="block text-sm font-medium text-slate-700">
 								Employment Type
 								<select
-									className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+									className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
 									value={vacancyForm.employment_type}
 									onChange={(event) => setVacancyForm((current) => ({ ...current, employment_type: event.target.value }))}
 								>
@@ -507,7 +523,7 @@ function AdminDashboard() {
 						<label className="block text-sm font-medium text-slate-700">
 							Description
 							<textarea
-								className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+								className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
 								rows={4}
 								value={vacancyForm.description}
 								onChange={(event) => setVacancyForm((current) => ({ ...current, description: event.target.value }))}
@@ -518,7 +534,7 @@ function AdminDashboard() {
 						<label className="block text-sm font-medium text-slate-700">
 							Requirements
 							<textarea
-								className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+								className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
 								rows={4}
 								value={vacancyForm.requirements}
 								onChange={(event) => setVacancyForm((current) => ({ ...current, requirements: event.target.value }))}
@@ -532,7 +548,7 @@ function AdminDashboard() {
 						<label className="block text-sm font-medium text-slate-700">
 							Poster Image (optional)
 							<input
-								className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition file:mr-3 file:rounded-md file:border file:border-blue-300 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+								className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-sm text-slate-700 outline-none transition file:mr-3 file:rounded-md file:border file:border-blue-300 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
 								type="file"
 								accept="image/*"
 								onChange={(event) => setPosterFile(event.target.files?.[0] || null)}
@@ -542,7 +558,7 @@ function AdminDashboard() {
 						{status ? <p className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-slate-700">{status}</p> : null}
 
 						<button
-							className="rounded-xl border border-blue-600 bg-blue-600 px-5 py-2.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+							className={PRIMARY_BUTTON_CLASS}
 							type="submit"
 							disabled={vacancyLoading}
 						>
@@ -557,18 +573,18 @@ function AdminDashboard() {
 			const selectedVacancy = vacancies.find((item) => item.id === selectedVacancyId);
 			return (
 				<div className="grid gap-4">
-					<section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+					<section className={PANEL_CLASS}>
 						<h2 className="font-display text-2xl font-bold text-slate-900">My Vacancies</h2>
 						<p className="mt-1 text-sm text-slate-600">Manage your job postings and review candidate applications.</p>
 						{status ? <p className="mt-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-slate-700">{status}</p> : null}
 						{vacancies.length === 0 ? (
-							<p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-slate-600">
+							<p className="mt-4 rounded-xl border border-blue-100/70 bg-blue-50/70 p-4 text-sm text-slate-600">
 								No vacancies posted yet. Use "Post Vacancy" to create your first job listing.
 							</p>
 						) : (
 							<ul className="mt-4 grid gap-3">
 								{vacancies.map((vacancy) => (
-									<li key={vacancy.id} className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+									<li key={vacancy.id} className="rounded-xl border border-blue-100/70 bg-white/85 p-4 shadow-sm">
 										<div className="flex flex-wrap items-center justify-between gap-2">
 											<p className="text-sm font-semibold text-slate-900">{vacancy.title}</p>
 											<span
@@ -588,14 +604,14 @@ function AdminDashboard() {
 											<button
 												type="button"
 												onClick={() => handleViewApplications(vacancy.id)}
-												className="rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50"
+												className={SECONDARY_BUTTON_CLASS}
 											>
 												View Applications
 											</button>
 											<button
 												type="button"
 												onClick={() => handleToggleVacancyStatus(vacancy)}
-												className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+												className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50"
 											>
 												{vacancy.status === 'open' ? 'Close' : 'Reopen'}
 											</button>
@@ -607,7 +623,7 @@ function AdminDashboard() {
 					</section>
 
 					{selectedVacancyId ? (
-						<section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+						<section className={PANEL_CLASS}>
 							<div className="flex flex-wrap items-center justify-between gap-2">
 								<h3 className="font-display text-xl font-bold text-slate-900">
 									Applications{selectedVacancy ? ` — ${selectedVacancy.title}` : ''}
@@ -615,7 +631,7 @@ function AdminDashboard() {
 								<button
 									type="button"
 									onClick={handleRank}
-									className="rounded-lg border border-blue-600 bg-blue-600 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+									className="rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-blue-600/20 transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-70"
 									disabled={ranking || applicationsLoading || applications.length === 0}
 								>
 									{ranking ? 'Ranking...' : 'Rank Candidates'}
@@ -623,13 +639,13 @@ function AdminDashboard() {
 							</div>
 
 							{applicationsLoading ? (
-								<p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-slate-600">Loading applications...</p>
+								<p className="mt-4 rounded-xl border border-blue-100/70 bg-blue-50/70 p-4 text-sm text-slate-600">Loading applications...</p>
 							) : applications.length === 0 ? (
-								<p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-slate-600">No applications yet for this vacancy.</p>
+								<p className="mt-4 rounded-xl border border-blue-100/70 bg-blue-50/70 p-4 text-sm text-slate-600">No applications yet for this vacancy.</p>
 							) : (
 								<ul className="mt-4 grid gap-3">
 									{applications.map((application) => (
-										<li key={application.id} className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+										<li key={application.id} className="rounded-xl border border-blue-100/70 bg-white/85 p-4 shadow-sm">
 											<div className="flex flex-wrap items-center justify-between gap-2">
 												<p className="text-sm font-semibold text-slate-900">{application.candidate_name}</p>
 												<span className="rounded-full border border-blue-200 bg-white px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-700">
@@ -658,7 +674,7 @@ function AdminDashboard() {
 
 		if (activeSection === 'rankings') {
 			return (
-				<section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+					<section className={PANEL_CLASS}>
 					<div className="flex flex-wrap items-center justify-between gap-2">
 						<div>
 							<h2 className="font-display text-2xl font-bold text-slate-900">Candidate Rankings</h2>
@@ -675,15 +691,15 @@ function AdminDashboard() {
 					</div>
 
 					{rankingsLoading ? (
-						<p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-slate-600">Loading ranked candidates...</p>
+							<p className="mt-4 rounded-xl border border-blue-100/70 bg-blue-50/70 p-4 text-sm text-slate-600">Loading ranked candidates...</p>
 					) : allRankings.length === 0 ? (
-						<p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-slate-600">
+							<p className="mt-4 rounded-xl border border-blue-100/70 bg-blue-50/70 p-4 text-sm text-slate-600">
 							No ranked candidates yet. Use <strong>Rank Candidates</strong> in My Vacancies to score applicants first.
 						</p>
 					) : (
 						<ul className="mt-4 grid gap-3">
 							{allRankings.map((application, index) => (
-								<li key={application.id} className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+								<li key={application.id} className="rounded-xl border border-blue-100/70 bg-white/85 p-4 shadow-sm">
 									<div className="flex flex-wrap items-center justify-between gap-2">
 										<div className="flex items-center gap-2">
 											<span className="flex h-7 w-7 items-center justify-center rounded-full border border-blue-200 bg-white text-xs font-bold text-blue-700">
@@ -722,17 +738,17 @@ function AdminDashboard() {
 		}
 
 		return (
-			<section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+			<section className={PANEL_CLASS}>
 				<h2 className="font-display text-2xl font-bold text-slate-900">User Chat History</h2>
 				<p className="mt-1 text-sm text-slate-600">Review previously captured chat prompts and answers.</p>
 				{chatHistory.length === 0 ? (
-					<p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-slate-600">
+					<p className="mt-4 rounded-xl border border-blue-100/70 bg-blue-50/70 p-4 text-sm text-slate-600">
 						No chat history found yet.
 					</p>
 				) : (
 					<ul className="mt-4 grid gap-2">
 						{chatHistory.map((entry, index) => (
-							<li key={`${entry?.question || 'chat'}-${index}`} className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+							<li key={`${entry?.question || 'chat'}-${index}`} className="rounded-xl border border-blue-100/70 bg-white/85 p-4 shadow-sm">
 								<p className="text-sm font-semibold text-slate-900">Q: {entry?.question || '-'}</p>
 								<p className="mt-1 text-sm text-slate-600">A: {entry?.answer || '-'}</p>
 							</li>
@@ -744,12 +760,12 @@ function AdminDashboard() {
 	};
 
 	return (
-		<div className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#eef5ff_58%,#f6fbff_100%)] text-slate-800">
-			<div className="grid min-h-screen w-full grid-rows-[auto_1fr_auto] gap-4 px-4 py-4 lg:px-6 lg:py-6">
+		<div className={SHELL_CLASS}>
+			<div className={PAGE_FRAME_CLASS}>
 				<Navbar showHome showSignIn={false} showSignUp={false} />
 
-				<main className="grid h-full gap-4 rounded-2xl border border-blue-100 bg-white/92 p-4 shadow-[0_12px_32px_rgba(37,99,235,0.08)] backdrop-blur-sm lg:grid-cols-[16rem_1fr] lg:p-6">
-					<aside className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-3">
+				<main className={DASHBOARD_CLASS}>
+					<aside className={SIDEBAR_CLASS}>
 						<p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">Admin Dashboard</p>
 						<div className="grid gap-2">
 							{SIDEBAR_ITEMS.map((item) => {
@@ -768,11 +784,7 @@ function AdminDashboard() {
 												loadAllRankings();
 											}
 										}}
-										className={`rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition ${
-											isActive
-												? 'border-blue-600 bg-blue-600 text-white shadow-sm'
-												: 'border-blue-100 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50'
-										}`}
+										className={`${SIDEBAR_BUTTON_BASE_CLASS} ${isActive ? SIDEBAR_BUTTON_ACTIVE_CLASS : SIDEBAR_BUTTON_INACTIVE_CLASS}`}
 									>
 										{item.label}
 									</button>
@@ -781,7 +793,7 @@ function AdminDashboard() {
 						</div>
 					</aside>
 
-					<div className="min-w-0">{renderContent()}</div>
+					<div className="min-w-0 space-y-4">{renderContent()}</div>
 				</main>
 
 				<Footer
