@@ -4,6 +4,7 @@ import Register from './pages/Register';
 import Chat from './pages/Chat';
 import Landing from './pages/Landing';
 import AdminDashboard from './pages/AdminDashboard';
+import Vacancies from './pages/Vacancies';
 
 function ProtectedRoute({ children }) {
 	const token = localStorage.getItem('auth_token');
@@ -21,6 +22,7 @@ function App() {
 				<Route path="/register" element={<Register />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/chat" element={<Chat />} />
+				<Route path="/vacancies" element={<Vacancies />} />
 				<Route
 					path="/admin-dashboard"
 					element={

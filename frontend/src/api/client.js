@@ -102,4 +102,74 @@ export const getLeaveRequests = async (token) => {
 	return response.data;
 };
 
+export const getOpenVacancies = async () => {
+	const response = await requestWithFallback({ method: 'get', url: '/vacancies/open' });
+	return response.data;
+};
+
+export const getVacancyDetail = async (vacancyId) => {
+	const response = await requestWithFallback({ method: 'get', url: `/vacancies/open/${vacancyId}` });
+	return response.data;
+};
+
+export const applyToVacancy = async (vacancyId, { candidate_name, candidate_email, candidate_phone, file }) => {
+	const formData = new FormData();
+	formData.append('candidate_name', candidate_name);
+	formData.append('candidate_email', candidate_email);
+	formData.append('candidate_phone', candidate_phone || '');
+	formData.append('file', file);
+	const response = await requestWithFallback({ method: 'post', url: `/vacancies/${vacancyId}/apply`, data: formData });
+	return response.data;
+};
+
+export const createVacancy = async (fields, posterFile, token) => {
+	const formData = new FormData();
+	Object.entries(fields).forEach(([key, value]) => formData.append(key, value));
+	if (posterFile) {
+		formData.append('poster', posterFile);
+	}
+	const response = await requestWithFallback({
+		method: 'post',
+		url: '/vacancies',
+		data: formData,
+		headers: authHeaders(token),
+	});
+	return response.data;
+};
+
+export const getMyVacancies = async (token) => {
+	const response = await requestWithFallback({ method: 'get', url: '/vacancies', headers: authHeaders(token) });
+	return response.data;
+};
+
+export const updateVacancyStatus = async (vacancyId, status, token) => {
+	const formData = new FormData();
+	formData.append('status', status);
+	const response = await requestWithFallback({
+		method: 'patch',
+		url: `/vacancies/${vacancyId}/status`,
+		data: formData,
+		headers: authHeaders(token),
+	});
+	return response.data;
+};
+
+export const getVacancyApplications = async (vacancyId, token) => {
+	const response = await requestWithFallback({
+		method: 'get',
+		url: `/vacancies/${vacancyId}/applications`,
+		headers: authHeaders(token),
+	});
+	return response.data;
+};
+
+export const rankVacancyApplications = async (vacancyId, token) => {
+	const response = await requestWithFallback({
+		method: 'post',
+		url: `/vacancies/${vacancyId}/rank`,
+		headers: authHeaders(token),
+	});
+	return response.data;
+};
+
 export default api;

@@ -33,6 +33,14 @@ function CheckIcon() {
 	);
 }
 
+function BriefcaseIcon() {
+	return (
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-6 w-6">
+			<path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25v-4.25m16.5 0a2.25 2.25 0 0 0-1.07-1.916l-7.5-4.615a2.25 2.25 0 0 0-2.36 0l-7.5 4.615A2.25 2.25 0 0 0 3.75 14.15m16.5 0v-1.5a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25v1.5M9 11.25v-.75a3 3 0 0 1 3-3h0a3 3 0 0 1 3 3v.75" />
+		</svg>
+	);
+}
+
 function ChevronDownIcon() {
 	return (
 		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-6 w-6">
@@ -174,6 +182,13 @@ function Landing() {
 							>
 								<ChatIcon />
 								Chat with LegalMind
+							</Link>
+							<Link
+								to="/vacancies"
+								className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-300/60 bg-blue-500/10 px-8 py-3.5 text-base font-semibold text-white backdrop-blur transition hover:scale-[1.03] hover:bg-blue-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+							>
+								<BriefcaseIcon />
+								View Vacancies
 							</Link>
 							<a
 								href="#features"

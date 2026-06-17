@@ -58,3 +58,7 @@ async def agent_get(path: str, params: dict[str, Any]) -> Any:
 
 async def agent_post_multipart(path: str, data: dict[str, Any], files: dict[str, Any]) -> Any:
     return await _request("POST", path, data=data, files=files)
+
+
+async def agent_patch_form(path: str, data: dict[str, Any]) -> Any:
+    return await _request("PATCH", path, data=data)
